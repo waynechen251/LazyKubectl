@@ -51,11 +51,11 @@ class MainWindow(tk.Frame):
         
 		# 產生命令: describe pod
         self.table_button = ttk.Button(self.table_frame, text="describe pod", command=self.command_describe_pod)
-        self.table_button.pack(pady=10)
+        self.table_button.pack(side=tk.LEFT, padx=10)
 
         # 複製 log 內容
         self.copy_button = ttk.Button(self.table_frame, text="Copy Log", command=self.copy_log)
-        self.copy_button.pack(pady=10)
+        self.copy_button.pack(side=tk.LEFT, padx=10)
 
         # log 區塊
         self.text_frame = ttk.Frame(self.parent)
