@@ -48,20 +48,24 @@ class MainWindow(tk.Frame):
 
         self.table_scroll_y.config(command=self.table.yview)
         self.table_scroll_x.config(command=self.table.xview)
+        
+		# 產生命令: describe pod
+        self.table_button = ttk.Button(self.table_frame, text="describe pod", command=self.command_describe_pod)
+        self.table_button.pack(pady=10)
 
-        # 下半部分：文字訊息顯示區域
+        # 複製 log 內容
+        self.copy_button = ttk.Button(self.table_frame, text="Copy Log", command=self.copy_log)
+        self.copy_button.pack(pady=10)
+
+        # log 區塊
         self.text_frame = ttk.Frame(self.parent)
         self.text_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 
-        self.text_label = ttk.Label(self.text_frame, text="Text View")
+        self.text_label = ttk.Label(self.text_frame, text="Log:")
         self.text_label.pack(pady=10)
 
-        self.textbox = tk.Text(self.text_frame, wrap=tk.WORD)
-        self.textbox.pack(padx=10, pady=5, fill=tk.BOTH, expand=True)
-
-        # 按鈕區域
-        self.button_frame = ttk.Frame(self.parent)
-        self.button_frame.pack(side=tk.BOTTOM, fill=tk.X)
+        self.log = tk.Text(self.text_frame, wrap=tk.WORD)
+        self.log.pack(padx=10, pady=5, fill=tk.BOTH, expand=True)
 
     def command_get_all_pods(self):
         output = KubectlCommands.get_all_pods()
@@ -71,6 +75,21 @@ class MainWindow(tk.Frame):
             self.update_table(data)
         else:
             print(f"command_get_all_pods Error: {data}")
+
+    def command_describe_pod(self):
+        selected_item = self.table.focus()
+        if selected_item:
+            namespace = self.table.item(selected_item)["values"][0]
+            name = self.table.item(selected_item)["values"][1]
+            self.update_log(f"kubectl describe pod {name} -n {namespace}")
+            # output = KubectlCommands.describe_pod(name, namespace)
+            # self.update_log(output)
+        else:
+            self.update_log("No pod selected")
+
+    def copy_log(self):
+        self.parent.clipboard_clear()
+        self.parent.clipboard_append(self.log.get("1.0", tk.END))
 
     def update_table(self, data):
         self.table.delete(*self.table.get_children())
@@ -101,11 +120,11 @@ class MainWindow(tk.Frame):
                 self.table.column(col, width=max_width + 20)  # Add some padding
         else:
             # If data is not a list or empty list, show error message
-            self.update_textbox(f"Invalid data: {data}")
+            self.update_log(f"Invalid data: {data}")
 
-    def update_textbox(self, message):
-        self.textbox.delete("1.0", tk.END)
-        self.textbox.insert(tk.END, message)
+    def update_log(self, message):
+        self.log.delete("1.0", tk.END)
+        self.log.insert(tk.END, message)
 
 if __name__ == "__main__":
     root = tk.Tk()

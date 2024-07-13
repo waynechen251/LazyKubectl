@@ -12,3 +12,12 @@ class KubectlCommands:
     except subprocess.CalledProcessError as e:
       print(f"kubectlcommands.get_all_pods error: {e}")
       return f"Error: {e}"
+  
+  @staticmethod
+  def describe_pod(name, namespace):
+    try:
+      result = subprocess.run(["kubectl", "describe", "pod", name, "-n", namespace], capture_output=True, text=True, check=True, encoding='utf-8')
+      return result.stdout
+    except subprocess.CalledProcessError as e:
+      print(f"kubectlcommands.describe_pod error: {e}")
+      return f"Error: {e}"
