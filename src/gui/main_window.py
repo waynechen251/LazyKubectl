@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import font
 from kubectlcommands import KubectlCommands
-from kubectlutils import KubectlUtils
 
 class MainWindow(tk.Frame):
     def __init__(self, parent):
@@ -68,13 +67,12 @@ class MainWindow(tk.Frame):
         self.log.pack(padx=10, pady=5, fill=tk.BOTH, expand=True)
 
     def command_get_all_pods(self):
-        output = KubectlCommands.get_all_pods()
-        data = KubectlUtils.parse_get_all_pods(output)
+        data = KubectlCommands.get_all_pods()
 
         if isinstance(data, list):
             self.update_table(data)
         else:
-            print(f"command_get_all_pods Error: {data}")
+            self.update_log(f"command_get_all_pods Error: {data}")
 
     def command_describe_pod(self):
         selected_item = self.table.focus()
