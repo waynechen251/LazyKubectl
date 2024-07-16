@@ -13,19 +13,7 @@ class MainWindow(tk.Frame):
         self.geometry()
 
         self.create_table()
-        
-		# 產生命令: describe pod
-        self.table_button = ttk.Button(self.table_frame, text="describe pod", command=self.command_describe_pod)
-        self.table_button.pack(side=tk.LEFT, padx=10)
-
-        # 產生命令 delete pod
-        self.table_button = ttk.Button(self.table_frame, text="delete pod", command=self.command_delete_pod)
-        self.table_button.pack(side=tk.LEFT, padx=10)
-
-        # 複製 log 內容
-        self.copy_button = ttk.Button(self.table_frame, text="Copy Log", command=self.copy_log)
-        self.copy_button.pack(side=tk.LEFT, padx=10)
-
+        self.create_middle_toolbar()
         self.create_log()
 
         self.theme()
@@ -133,6 +121,19 @@ class MainWindow(tk.Frame):
 
         self.table_scroll_y.config(command=self.table.yview)
         self.table_scroll_x.config(command=self.table.xview)
+    
+    def create_middle_toolbar(self):
+        self.middle_toolbar = ttk.Frame(self.parent)
+        self.middle_toolbar.pack(side=tk.TOP, fill=tk.X)
+
+        self.describe_pod_button = ttk.Button(self.middle_toolbar, text="describe pod", command=self.command_describe_pod)
+        self.describe_pod_button.pack(side=tk.LEFT, padx=10)
+
+        self.delete_pod_button = ttk.Button(self.middle_toolbar, text="delete pod", command=self.command_delete_pod)
+        self.delete_pod_button.pack(side=tk.LEFT, padx=10)
+
+        self.copy_log_button = ttk.Button(self.middle_toolbar, text="Copy Log", command=self.copy_log)
+        self.copy_log_button.pack(side=tk.LEFT, padx=10)
     
     def create_log(self):
         self.log_Frame = ttk.Frame(self.parent)

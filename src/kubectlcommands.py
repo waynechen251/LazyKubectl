@@ -4,11 +4,21 @@ import json
 from kubectlutils import KubectlUtils
 
 class KubectlCommands:
-
+  
+  @staticmethod
+  def run(caller, command):
+    try:
+      result = subprocess.run(command, capture_output=True, text=True, check=True, encoding='utf-8', timeout=15)
+      return result
+    except Exception as e:
+      msg = f"kubectlcommands.{caller} error: {e}"
+      print(msg)
+      return msg
+  
   @staticmethod
   def get_all_pods():
     try:
-      result = subprocess.run(["kubectl", "get", "pods", "-A", "-o", "json"], capture_output=True, text=True, check=True, encoding='utf-8', timeout=15)
+      result = KubectlCommands.run("get_all_pods", ["kubectl", "get", "pods", "-A", "-o", "json"])
       data = KubectlUtils.parse_get_all_pods(result.stdout)
       return data
     except Exception as e:
@@ -18,7 +28,7 @@ class KubectlCommands:
   @staticmethod
   def describe_pod(name, namespace):
     try:
-      result = subprocess.run(["kubectl", "describe", "pod", name, "-n", namespace], capture_output=True, text=True, check=True, encoding='utf-8', timeout=15)
+      result = KubectlCommands.run("describe_pod", ["kubectl", "describe", "pod", name, "-n", namespace])
       return result.stdout
     except Exception as e:
       print(f"kubectlcommands.describe_pod error: {e}")
@@ -27,7 +37,7 @@ class KubectlCommands:
   @staticmethod
   def delete_pod(name, namespace):
     try:
-      result = subprocess.run(["kubectl", "delete", "pod", name, "-n", namespace], capture_output=True, text=True, check=True, encoding='utf-8', timeout=15)
+      result = KubectlCommands.run("delete_pod", ["kubectl", "delete", "pod", name, "-n", namespace])
       return result.stdout
     except Exception as e:
       print(f"kubectlcommands.delete_pod error: {e}")
