@@ -1,22 +1,27 @@
 import tkinter as tk
 from tkinter import ttk
-from tkinter import font, messagebox
+from tkinter import font, messagebox, Menu
 from kubectlcommands import KubectlCommands
+from language_manager import LanguageManager
 
 class MainWindow(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
+
+        self.language_manager = LanguageManager()
 
         self.parent = parent
         self.parent.title("LazyKubectl")
 
         self.geometry()
 
+        self.create_menu()
         self.create_table()
-        self.create_middle_toolbar()
+        self.create_command_panel()
         self.create_log()
 
         self.theme()
+        self.update_language()
 
     def command_get_all_pods(self):
         data = KubectlCommands.get_all_pods()
@@ -32,17 +37,17 @@ class MainWindow(tk.Frame):
             output = KubectlCommands.describe_pod(self.get_selected_name(), self.get_selected_namespace())
             self.update_log(output)
         else:
-            self.update_log("No pod selected")
+            self.update_log(self.language_manager.translate("no-pod-selected"))
     
     def command_delete_pod(self):
         selected_item = self.table.focus()
         if selected_item:
-            confirm = messagebox.askyesno("Confirm Delete", f"Are you sure you want to delete pod '{self.get_selected_name()}' in namespace '{self.get_selected_namespace()}'?")
+            confirm = messagebox.askyesno(self.language_manager.translate("confirm-delete"), f"Are you sure you want to delete pod '{self.get_selected_name()}' in namespace '{self.get_selected_namespace()}'?")
             if confirm:
                 output = KubectlCommands.delete_pod(self.get_selected_name(), self.get_selected_namespace())
                 self.update_log(output)
         else:
-            self.update_log("No pod selected")
+            self.update_log(self.language_manager.translate("no-pod-selected"))
     
     def get_selected_namespace(self):
         print(f"get_selected_namespace: {self.table.item(self.table.focus())['values'][0]}")
@@ -93,13 +98,35 @@ class MainWindow(tk.Frame):
         self.log.insert(tk.END, message)
         self.log.config(state=tk.DISABLED)
         self.log.see(tk.END)
-    
+
+    def create_menu(self):
+        self.menubar = tk.Menu(self.parent)
+
+        self.language_menu = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label=self.language_manager.translate("menubar-languages"), menu=self.language_menu)
+        
+        for lang, lang_name in self.language_manager.get_available_languages().items():
+            self.language_menu.add_command(label=lang_name, command=lambda l=lang: self.set_language(l))
+
+        self.parent.config(menu=self.menubar)
+
+    def set_language(self, language):
+        print(f"Setting language: {language}")
+        self.language_manager.set_language(language)
+        self.update_language()
+
+    def update_language(self):
+        print(f"Current language: {self.language_manager.current_language}")
+        self.parent.title(self.language_manager.translate("title"))
+        self.get_pod_A_button.config(text=self.language_manager.translate("get-pod-a-button"))
+        self.describe_pod_button.config(text=self.language_manager.translate("describe-pod-button"))
+        self.delete_pod_button.config(text=self.language_manager.translate("delete-pod-button"))
+        self.copy_log_button.config(text=self.language_manager.translate("copy-log-button"))
+        self.log_label.config(text=self.language_manager.translate("log-label"))
+        
     def create_table(self):
         self.table_frame = ttk.Frame(self.parent)
         self.table_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-        self.table_button = ttk.Button(self.table_frame, text="get pod -A", command=self.command_get_all_pods)
-        self.table_button.pack(pady=10)
 
         self.table_scroll_x = ttk.Scrollbar(self.table_frame, orient="horizontal")
         self.table_scroll_y = ttk.Scrollbar(self.table_frame, orient="vertical")
@@ -122,25 +149,28 @@ class MainWindow(tk.Frame):
         self.table_scroll_y.config(command=self.table.yview)
         self.table_scroll_x.config(command=self.table.xview)
     
-    def create_middle_toolbar(self):
-        self.middle_toolbar = ttk.Frame(self.parent)
-        self.middle_toolbar.pack(side=tk.TOP, fill=tk.X)
+    def create_command_panel(self):
+        self.command_panel = ttk.Frame(self.parent)
+        self.command_panel.pack(side=tk.TOP, fill=tk.X)
 
-        self.describe_pod_button = ttk.Button(self.middle_toolbar, text="describe pod", command=self.command_describe_pod)
+        self.get_pod_A_button = ttk.Button(self.table_frame, text=self.language_manager.translate("get-pod-a-button"), command=self.command_get_all_pods)
+        self.get_pod_A_button.pack(pady=10)
+
+        self.describe_pod_button = ttk.Button(self.command_panel, text=self.language_manager.translate("describe-pod-button"), command=self.command_describe_pod)
         self.describe_pod_button.pack(side=tk.LEFT, padx=10)
 
-        self.delete_pod_button = ttk.Button(self.middle_toolbar, text="delete pod", command=self.command_delete_pod)
+        self.delete_pod_button = ttk.Button(self.command_panel, text=self.language_manager.translate("delete-pod-button"), command=self.command_delete_pod)
         self.delete_pod_button.pack(side=tk.LEFT, padx=10)
 
-        self.copy_log_button = ttk.Button(self.middle_toolbar, text="Copy Log", command=self.copy_log)
+        self.copy_log_button = ttk.Button(self.command_panel, text=self.language_manager.translate("copy-log-button"), command=self.copy_log)
         self.copy_log_button.pack(side=tk.LEFT, padx=10)
     
     def create_log(self):
         self.log_Frame = ttk.Frame(self.parent)
         self.log_Frame.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 
-        self.text_label = ttk.Label(self.log_Frame, text="Log:")
-        self.text_label.pack(pady=10)
+        self.log_label = ttk.Label(self.log_Frame, text="Log:")
+        self.log_label.pack(pady=10)
 
         self.log_scroll_x = ttk.Scrollbar(self.log_Frame, orient="horizontal")
         self.log_scroll_x.pack(side=tk.BOTTOM, fill=tk.X)
