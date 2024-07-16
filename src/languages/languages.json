@@ -3,5 +3,15 @@
     "zh-TW": "懶人Kubectl",
     "zh-CN": "懒人Kubectl",
     "en-US": "LazyKubectl"
+  },
+  "confirm-delete": {
+    "zh-TW": "是否刪除?",
+    "zh-CN": "是否删除?",
+    "en-US": "Are you sure to delete?"
+  },
+  "no-pod-selected": {
+    "zh-TW": "未選擇Pod",
+    "zh-CN": "未选择Pod",
+    "en-US": "No Pod selected"
   }
 }
