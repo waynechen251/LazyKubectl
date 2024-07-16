@@ -12,40 +12,13 @@ class MainWindow(tk.Frame):
 
         self.geometry()
 
-        # 上半部分：表格顯示區域
-        self.table_frame = ttk.Frame(self.parent)
-        self.table_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-        self.table_button = ttk.Button(self.table_frame, text="get pod -A", command=self.command_get_all_pods)
-        self.table_button.pack(pady=10)
-
-        # 增加滾動條
-        self.table_scroll_y = ttk.Scrollbar(self.table_frame, orient="vertical")
-        self.table_scroll_y.pack(side=tk.RIGHT, fill=tk.Y)
-        self.table_scroll_x = ttk.Scrollbar(self.table_frame, orient="horizontal")
-        self.table_scroll_x.pack(side=tk.BOTTOM, fill=tk.X)
-
-        self.table = ttk.Treeview(self.table_frame, columns=("NAMESPACE", "NAME", "READY", "STATUS", "RESTARTS", "AGE", "IP", "NODE", "NOMINATED NODE", "READINESS GATES"), show="headings", yscrollcommand=self.table_scroll_y.set, xscrollcommand=self.table_scroll_x.set)
-        self.table.heading("NAMESPACE", text="NAMESPACE")
-        self.table.heading("NAME", text="NAME")
-        self.table.heading("READY", text="READY")
-        self.table.heading("STATUS", text="STATUS")
-        self.table.heading("RESTARTS", text="RESTARTS")
-        self.table.heading("AGE", text="AGE")
-        self.table.heading("IP", text="IP")
-        self.table.heading("NODE", text="NODE")
-        self.table.heading("NOMINATED NODE", text="NOMINATED NODE")
-        self.table.heading("READINESS GATES", text="READINESS GATES")
-        self.table.pack(padx=10, pady=5, fill=tk.BOTH, expand=True)
-
-        self.table_scroll_y.config(command=self.table.yview)
-        self.table_scroll_x.config(command=self.table.xview)
+        self.create_table()
         
 		# 產生命令: describe pod
         self.table_button = ttk.Button(self.table_frame, text="describe pod", command=self.command_describe_pod)
         self.table_button.pack(side=tk.LEFT, padx=10)
 
-        # 產生命令 delete pod (使用紅色字體)
+        # 產生命令 delete pod
         self.table_button = ttk.Button(self.table_frame, text="delete pod", command=self.command_delete_pod)
         self.table_button.pack(side=tk.LEFT, padx=10)
 
@@ -53,15 +26,7 @@ class MainWindow(tk.Frame):
         self.copy_button = ttk.Button(self.table_frame, text="Copy Log", command=self.copy_log)
         self.copy_button.pack(side=tk.LEFT, padx=10)
 
-        # log 區塊
-        self.text_frame = ttk.Frame(self.parent)
-        self.text_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
-
-        self.text_label = ttk.Label(self.text_frame, text="Log:")
-        self.text_label.pack(pady=10)
-
-        self.log = tk.Text(self.text_frame, wrap=tk.WORD, state=tk.DISABLED)
-        self.log.pack(padx=10, pady=5, fill=tk.BOTH, expand=True)
+        self.create_log()
 
         self.theme()
 
@@ -76,9 +41,7 @@ class MainWindow(tk.Frame):
     def command_describe_pod(self):
         selected_item = self.table.focus()
         if selected_item:
-            namespace = self.table.item(selected_item)["values"][0]
-            name = self.table.item(selected_item)["values"][1]
-            output = KubectlCommands.describe_pod(name, namespace)
+            output = KubectlCommands.describe_pod(self.get_selected_name(), self.get_selected_namespace())
             self.update_log(output)
         else:
             self.update_log("No pod selected")
@@ -86,14 +49,20 @@ class MainWindow(tk.Frame):
     def command_delete_pod(self):
         selected_item = self.table.focus()
         if selected_item:
-            namespace = self.table.item(selected_item)["values"][0]
-            name = self.table.item(selected_item)["values"][1]
-            confirm = messagebox.askyesno("Confirm Delete", f"Are you sure you want to delete pod '{name}' in namespace '{namespace}'?")
+            confirm = messagebox.askyesno("Confirm Delete", f"Are you sure you want to delete pod '{self.get_selected_name()}' in namespace '{self.get_selected_namespace()}'?")
             if confirm:
-                output = KubectlCommands.delete_pod(name, namespace)
+                output = KubectlCommands.delete_pod(self.get_selected_name(), self.get_selected_namespace())
                 self.update_log(output)
         else:
             self.update_log("No pod selected")
+    
+    def get_selected_namespace(self):
+        print(f"get_selected_namespace: {self.table.item(self.table.focus())['values'][0]}")
+        return self.table.item(self.table.focus())["values"][0]
+    
+    def get_selected_name(self):
+        print(f"get_selected_name: {self.table.item(self.table.focus())['values'][1]}")
+        return self.table.item(self.table.focus())["values"][1]
 
     def copy_log(self):
         self.parent.clipboard_clear()
@@ -137,6 +106,52 @@ class MainWindow(tk.Frame):
         self.log.config(state=tk.DISABLED)
         self.log.see(tk.END)
     
+    def create_table(self):
+        self.table_frame = ttk.Frame(self.parent)
+        self.table_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        self.table_button = ttk.Button(self.table_frame, text="get pod -A", command=self.command_get_all_pods)
+        self.table_button.pack(pady=10)
+
+        self.table_scroll_x = ttk.Scrollbar(self.table_frame, orient="horizontal")
+        self.table_scroll_y = ttk.Scrollbar(self.table_frame, orient="vertical")
+        self.table_scroll_x.pack(side=tk.BOTTOM, fill=tk.X)
+        self.table_scroll_y.pack(side=tk.RIGHT, fill=tk.Y)
+
+        self.table = ttk.Treeview(self.table_frame, columns=("NAMESPACE", "NAME", "READY", "STATUS", "RESTARTS", "AGE", "IP", "NODE", "NOMINATED NODE", "READINESS GATES"), show="headings", yscrollcommand=self.table_scroll_y.set, xscrollcommand=self.table_scroll_x.set)
+        self.table.heading("NAMESPACE", text="NAMESPACE")
+        self.table.heading("NAME", text="NAME")
+        self.table.heading("READY", text="READY")
+        self.table.heading("STATUS", text="STATUS")
+        self.table.heading("RESTARTS", text="RESTARTS")
+        self.table.heading("AGE", text="AGE")
+        self.table.heading("IP", text="IP")
+        self.table.heading("NODE", text="NODE")
+        self.table.heading("NOMINATED NODE", text="NOMINATED NODE")
+        self.table.heading("READINESS GATES", text="READINESS GATES")
+        self.table.pack(padx=10, pady=5, fill=tk.BOTH, expand=True)
+
+        self.table_scroll_y.config(command=self.table.yview)
+        self.table_scroll_x.config(command=self.table.xview)
+    
+    def create_log(self):
+        self.log_Frame = ttk.Frame(self.parent)
+        self.log_Frame.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+
+        self.text_label = ttk.Label(self.log_Frame, text="Log:")
+        self.text_label.pack(pady=10)
+
+        self.log_scroll_x = ttk.Scrollbar(self.log_Frame, orient="horizontal")
+        self.log_scroll_x.pack(side=tk.BOTTOM, fill=tk.X)
+        self.log_scroll_y = ttk.Scrollbar(self.log_Frame, orient="vertical")
+        self.log_scroll_y.pack(side=tk.RIGHT, fill=tk.Y)
+
+        self.log = tk.Text(self.log_Frame, wrap=tk.WORD, state=tk.DISABLED, yscrollcommand=self.log_scroll_y.set, xscrollcommand=self.log_scroll_x.set)
+        self.log.pack(padx=10, pady=5, fill=tk.BOTH, expand=True)
+
+        self.log_scroll_x.config(command=self.log.xview)
+        self.log_scroll_y.config(command=self.log.yview)
+    
     def theme(self):
         self.style = ttk.Style()
         self.style.theme_use("clam")
@@ -153,7 +168,7 @@ class MainWindow(tk.Frame):
     def geometry(self):
         screen_width = self.parent.winfo_screenwidth()
         window_width = int(screen_width * 0.7)
-        window_height = 500
+        window_height = int(screen_width * 0.3)
 
         x_cordinate = int((screen_width / 2) - (window_width / 2))
         y_cordinate = int((self.parent.winfo_screenheight() / 2) - (window_height / 2))
