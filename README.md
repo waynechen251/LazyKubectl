@@ -12,4 +12,4 @@
 我負責~~鞭笞~~CodeReviewAI負責寫  
 
 上個圖  
-![alt text](readme/image.png)
+![alt text](readme/image240716.png)
