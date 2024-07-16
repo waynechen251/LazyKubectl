@@ -25,9 +25,10 @@ class KubectlUtils:
                     }
                     result.append(pod_info)
                 return result
-            except (json.JSONDecodeError, KeyError) as e:
-                print(f"utils.parse_get_all_pods error: {e}")
-                return f"Error parsing get pods wide: {e}"
+            except Exception as e:
+                msg = f"utils.parse_get_all_pods error: {e}"
+                print(msg)
+                return msg
         else:
             return "No output to parse"
 
@@ -46,7 +47,11 @@ class KubectlUtils:
         creation_time = parser.parse(creation_timestamp)
         now = datetime.now(timezone.utc)
         age = now - creation_time
-        return str(age).split('.')[0]  # Format the age to remove microseconds
+        days = age.days
+        hours, remainder = divmod(age.seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        return f"{days}d {hours:02}h {minutes:02}m {seconds:02}s"
+
 
     @staticmethod
     def get_readiness_gates(conditions):

@@ -9,13 +9,10 @@ class KubectlCommands:
   def get_all_pods():
     try:
       result = subprocess.run(["kubectl", "get", "pods", "-A", "-o", "json"], capture_output=True, text=True, check=True, encoding='utf-8', timeout=15)
-      data = KubectlUtils.parse_get_all_pods(result)
+      data = KubectlUtils.parse_get_all_pods(result.stdout)
       return data
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
       print(f"kubectlcommands.get_all_pods error: {e}")
-      return f"Error: {e}"
-    except subprocess.TimeoutExpired as e:
-      print(f"kubectlcommands.get_all_pods timeout: {e}")
       return f"Error: {e}"
   
   @staticmethod
@@ -23,9 +20,15 @@ class KubectlCommands:
     try:
       result = subprocess.run(["kubectl", "describe", "pod", name, "-n", namespace], capture_output=True, text=True, check=True, encoding='utf-8', timeout=15)
       return result.stdout
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
       print(f"kubectlcommands.describe_pod error: {e}")
       return f"Error: {e}"
-    except subprocess.TimeoutExpired as e:
-      print(f"kubectlcommands.describe_pod timeout: {e}")
+    
+  @staticmethod
+  def delete_pod(name, namespace):
+    try:
+      result = subprocess.run(["kubectl", "delete", "pod", name, "-n", namespace], capture_output=True, text=True, check=True, encoding='utf-8', timeout=15)
+      return result.stdout
+    except Exception as e:
+      print(f"kubectlcommands.delete_pod error: {e}")
       return f"Error: {e}"
