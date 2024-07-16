@@ -9,3 +9,4 @@
 
 順便練習一下怎麼奴役AI和我一起合作完成
 我負責鞭笞AI負責寫
+![alt text](readme/image.png)
