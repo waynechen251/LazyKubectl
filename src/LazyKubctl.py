@@ -8,7 +8,7 @@ class LazyKubectlApp:
     self.root.title("LazyKubectl")
     
     self.main_window = MainWindow(self.root)
-    self.main_window.pack(expand=True, fill=tk.BOTH)
+    self.main_window.grid(row=0, column=0, sticky="nsew")
 
 def main():
   root = tk.Tk()

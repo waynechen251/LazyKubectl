@@ -42,3 +42,12 @@ class KubectlCommands:
     except Exception as e:
       print(f"kubectlcommands.delete_pod error: {e}")
       return f"Error: {e}"
+  
+  @staticmethod
+  def logs_pod(name, namespace):
+    try:
+      result = KubectlCommands.run("logs_pod", ["kubectl", "logs", name, "-n", namespace])
+      return result.stdout
+    except Exception as e:
+      print(f"kubectlcommands.logs_pod error: {e}")
+      return f"Error: {e}"

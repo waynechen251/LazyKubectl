@@ -49,6 +49,14 @@ class MainWindow(tk.Frame):
         else:
             self.update_log(self.language_manager.translate("no-pod-selected"))
     
+    def command_logs_pod(self):
+        selected_item = self.table.focus()
+        if selected_item:
+            output = KubectlCommands.logs_pod(self.get_selected_name(), self.get_selected_namespace())
+            self.update_log(output)
+        else:
+            self.update_log(self.language_manager.translate("no-pod-selected"))
+    
     def get_selected_namespace(self):
         print(f"get_selected_namespace: {self.table.item(self.table.focus())['values'][0]}")
         return self.table.item(self.table.focus())["values"][0]
@@ -123,15 +131,16 @@ class MainWindow(tk.Frame):
         self.delete_pod_button.config(text=self.language_manager.translate("delete-pod-button"))
         self.copy_log_button.config(text=self.language_manager.translate("copy-log-button"))
         self.log_label.config(text=self.language_manager.translate("log-label"))
+        self.logs_pod_button.config(text=self.language_manager.translate("logs-pod-button"))
         
     def create_table(self):
         self.table_frame = ttk.Frame(self.parent)
-        self.table_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.table_frame.grid(row=0, column=0, columnspan=3, sticky="nsew")
 
         self.table_scroll_x = ttk.Scrollbar(self.table_frame, orient="horizontal")
         self.table_scroll_y = ttk.Scrollbar(self.table_frame, orient="vertical")
-        self.table_scroll_x.pack(side=tk.BOTTOM, fill=tk.X)
-        self.table_scroll_y.pack(side=tk.RIGHT, fill=tk.Y)
+        self.table_scroll_x.grid(row=1, column=0, sticky="ew")
+        self.table_scroll_y.grid(row=0, column=1, sticky="ns")
 
         self.table = ttk.Treeview(self.table_frame, columns=("NAMESPACE", "NAME", "READY", "STATUS", "RESTARTS", "AGE", "IP", "NODE", "NOMINATED NODE", "READINESS GATES"), show="headings", yscrollcommand=self.table_scroll_y.set, xscrollcommand=self.table_scroll_x.set)
         self.table.heading("NAMESPACE", text="NAMESPACE")
@@ -144,45 +153,54 @@ class MainWindow(tk.Frame):
         self.table.heading("NODE", text="NODE")
         self.table.heading("NOMINATED NODE", text="NOMINATED NODE")
         self.table.heading("READINESS GATES", text="READINESS GATES")
-        self.table.pack(padx=10, pady=5, fill=tk.BOTH, expand=True)
+        self.table.grid(row=0, column=0, sticky="nsew")
 
+        self.table_frame.grid_rowconfigure(0, weight=1)
+        self.table_frame.grid_columnconfigure(0, weight=1)
+        
         self.table_scroll_y.config(command=self.table.yview)
         self.table_scroll_x.config(command=self.table.xview)
     
     def create_command_panel(self):
         self.command_panel = ttk.Frame(self.parent)
-        self.command_panel.pack(side=tk.TOP, fill=tk.X)
+        self.command_panel.grid(row=1, column=0, columnspan=3, sticky="ew")
 
-        self.get_pod_A_button = ttk.Button(self.table_frame, text=self.language_manager.translate("get-pod-a-button"), command=self.command_get_all_pods)
-        self.get_pod_A_button.pack(pady=10)
+        self.get_pod_A_button = ttk.Button(self.command_panel, text=self.language_manager.translate("get-pod-a-button"), command=self.command_get_all_pods)
+        self.get_pod_A_button.grid(row=0, column=0, padx=10, pady=10)
 
         self.describe_pod_button = ttk.Button(self.command_panel, text=self.language_manager.translate("describe-pod-button"), command=self.command_describe_pod)
-        self.describe_pod_button.pack(side=tk.LEFT, padx=10)
+        self.describe_pod_button.grid(row=0, column=1, padx=10)
+
+        self.logs_pod_button = ttk.Button(self.command_panel, text=self.language_manager.translate("logs-pod-button"), command=self.command_logs_pod)
+        self.logs_pod_button.grid(row=0, column=2, padx=10)
 
         self.delete_pod_button = ttk.Button(self.command_panel, text=self.language_manager.translate("delete-pod-button"), command=self.command_delete_pod)
-        self.delete_pod_button.pack(side=tk.LEFT, padx=10)
+        self.delete_pod_button.grid(row=0, column=3, padx=10)
 
         self.copy_log_button = ttk.Button(self.command_panel, text=self.language_manager.translate("copy-log-button"), command=self.copy_log)
-        self.copy_log_button.pack(side=tk.LEFT, padx=10)
-    
+        self.copy_log_button.grid(row=0, column=4, padx=10)
+
     def create_log(self):
         self.log_Frame = ttk.Frame(self.parent)
-        self.log_Frame.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+        self.log_Frame.grid(row=2, column=0, columnspan=3, sticky="nsew")
 
         self.log_label = ttk.Label(self.log_Frame, text="Log:")
-        self.log_label.pack(pady=10)
+        self.log_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
 
         self.log_scroll_x = ttk.Scrollbar(self.log_Frame, orient="horizontal")
-        self.log_scroll_x.pack(side=tk.BOTTOM, fill=tk.X)
+        self.log_scroll_x.grid(row=2, column=0, sticky="ew")
         self.log_scroll_y = ttk.Scrollbar(self.log_Frame, orient="vertical")
-        self.log_scroll_y.pack(side=tk.RIGHT, fill=tk.Y)
+        self.log_scroll_y.grid(row=1, column=1, sticky="ns")
 
         self.log = tk.Text(self.log_Frame, wrap=tk.WORD, state=tk.DISABLED, yscrollcommand=self.log_scroll_y.set, xscrollcommand=self.log_scroll_x.set)
-        self.log.pack(padx=10, pady=5, fill=tk.BOTH, expand=True)
+        self.log.grid(row=1, column=0, padx=10, pady=5, sticky="nsew")
+
+        self.log_Frame.grid_rowconfigure(1, weight=1)
+        self.log_Frame.grid_columnconfigure(0, weight=1)
 
         self.log_scroll_x.config(command=self.log.xview)
         self.log_scroll_y.config(command=self.log.yview)
-    
+
     def theme(self):
         self.style = ttk.Style()
         self.style.theme_use("clam")
@@ -197,6 +215,11 @@ class MainWindow(tk.Frame):
         self.log.configure(background="#2e2e2e", foreground="#ffffff", insertbackground="white")
     
     def geometry(self):
+        self.parent.grid_rowconfigure(0, weight=1)
+        self.parent.grid_rowconfigure(1, weight=0)
+        self.parent.grid_rowconfigure(2, weight=1)
+        self.parent.grid_columnconfigure(0, weight=1)
+
         screen_width = self.parent.winfo_screenwidth()
         window_width = int(screen_width * 0.7)
         window_height = int(screen_width * 0.3)
@@ -208,5 +231,5 @@ class MainWindow(tk.Frame):
 if __name__ == "__main__":
     root = tk.Tk()
     app = MainWindow(root)
-    app.pack(fill="both", expand=True)
+    app.grid(row=0, column=0, sticky="nsew")
     root.mainloop()

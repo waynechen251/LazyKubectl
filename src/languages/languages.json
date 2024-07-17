@@ -48,5 +48,10 @@
     "zh-TW": "事件紀錄",
     "zh-CN": "事件纪录",
     "en-US": "Event Log"
+  },
+  "logs-pod-button": {
+    "zh-TW": "取得Pod Log",
+    "zh-CN": "获取Pod Log",
+    "en-US": "Get Pod Log"
   }
 }
