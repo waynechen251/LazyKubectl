@@ -1,4 +1,4 @@
-# LazyKubctl
+# LazyKubectl
 懶人kubectl GUI
 
 查個問題一直要複製命令改來改去貼來貼去  
