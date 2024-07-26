@@ -46,6 +46,8 @@ class MainWindow(tk.Frame):
             if confirm:
                 output = KubectlCommands.delete_pod(self.get_selected_name(), self.get_selected_namespace())
                 self.update_log(output)
+
+                self.command_get_all_pods()
         else:
             self.update_log(self.language_manager.translate("no-pod-selected"))
     

@@ -24,8 +24,7 @@ del /F /Q /S *.spec
 
 echo [Start py2exe]
 @title %PROJECT_NAME% - Start py2exe
-pyinstaller --hidden-import=tqdm --clean -F .\src\%PROJECT_NAME%.py
-rem pyinstaller -i icon128.ico --hidden-import=tqdm --clean -F .\src\%PROJECT_NAME%.py
+pyinstaller -i icon128.ico --hidden-import=tqdm --clean -F .\src\%PROJECT_NAME%.py
 rem pyinstaller --clean -F -w %PROJECT_NAME%.py
 
 echo [Get file]
