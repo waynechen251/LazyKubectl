@@ -2,15 +2,37 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>LazyKubectl</title>
+    <title>LazyKubectl 工具集</title>
+    <link rel="stylesheet" type="text/css" href="main.css">
 </head>
 <body>
-    <h1>LazyKubectl</h1>
-    <div id="app"></div>
-    <script src="renderer.js"></script>
+    <header>
+        <h1>LazyKubectl 工具集</h1>
+        <p>懶人kubectl GUI</p>
+    </header>
+    <div class="container">
+        <div class="tool">
+            <h2>工具 1</h2>
+            <p>這是工具 1 的描述。</p>
+            <button onclick="startTool1()">啟動工具 1</button>
+        </div>
+        <div class="tool">
+            <h2>工具 2</h2>
+            <p>這是工具 2 的描述。</p>
+            <button onclick="startTool2()">啟動工具 2</button>
+        </div>
+        <!-- 可以添加更多工具 -->
+    </div>
+    <script>
+        function startTool1() {
+            // 在這裡添加啟動工具 1 的邏輯
+            alert('啟動工具 1');
+        }
 
-    <p>We are using Node.js <span id="node-version"></span>,</p>
-    <p>Chromium <span id="chrome-version"></span>,</p>
-    <p>and Electron <span id="electron-version"></span>.</p>
+        function startTool2() {
+            // 在這裡添加啟動工具 2 的邏輯
+            alert('啟動工具 2');
+        }
+    </script>
 </body>
 </html>
