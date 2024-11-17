@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "懶人kubectl GUI",
   "auth": "waynechen251",
+  "license": "MIT",
   "main": "main.js",
   "scripts": {
         "start": "electron ."
